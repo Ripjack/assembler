@@ -1,12 +1,18 @@
+#python versoin 3.6
 with open('assembly', 'r') as file:
 	data = file.read()
-	cmds = data.split(";\n")
-	cmdfile = {}
-	for cmd in cmds:
+	lines = data.split(";\n")
+	commands = {
+	'add': '0000 0000',
+	'set': '0000 0000',
+	'out': '0000 0000'
+	}
+	cmds = {}
+	for cmd in lines:
 		if cmd == '':
-			cmdfile[format(len(cmdfile), 'X')] = "EOF"
+			cmds[format(len(cmds), 'x')] = ["EOF"]
 			break
 		line = cmd.split(" ")
-		addr = line[0] + line[1]
-		addr = format(int(addr, 2), 'X')
-		cmdfile[line[0] + line[1]] = line[2:]
+		addr = line[0]
+		cmds[addr] = line[1:]
+	print(cmds)
