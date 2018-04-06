@@ -32,6 +32,13 @@ for cmd in lines:
     cmd = ''.join(cmd)
     cmd = [cmd[i:i+n] for i in range(0, len(cmd), n)]
     cmd = [format(int(x, 2), '02x') for x in cmd]
-    cmds.append(" ".join(cmd))
-cmds = " ".join(cmds)
-cmds = cmds.split(" ")
+    cmds.append("".join(cmd))
+cmds = "".join(cmds)
+cmds = [cmds[i:i+16] for i in range(0, len(cmds), 16)]
+cmds = [[x[i:i+2] for i in range(0, len(x), 2)] for x in cmds]
+cmds = [' '.join(x) for x in cmds]
+cmds = '\n'.join(cmds)
+cmds = 'v2.0 raw\n' + cmds
+file = open("assembled", 'w')
+file.write(cmds)
+file.close()
