@@ -1,0 +1,157 @@
+registers:
+lax
+lbx
+lcx
+ldx
+base-pointer, lbp
+stack-pointer, lsp
+accumulator, lac
+instruction-pointer, lip
+current-instruction, lci
+flags:
+	carry true,
+	a > b,
+	a = b,
+	a = 0
+legend:
+| | = byte
+| = instr section
+DATA OPS:
+Halt:
+1111
+   | |1111|0000| |
+	 |-op-|eof-|
+Move:
+1110
+	| |1111|00|00| |00000000| |
+	  |-op-|Sr|dt|--Bytes,regs|
+	sr = source
+	00: reg,
+	01: byte,
+	10: short,
+	11: offset
+	dt = destination
+	00: reg,
+	01: byte,
+	10: short,
+	11: offset
+	s/b = short/byte
+	ecomm, e = end of command
+	
+	move byte -> reg,
+		| |1111|01|00| |000|00000| |000|00000| |
+		  |op--|sr|dt| |reg|byte-------|ecomm|
+	
+	move short -> reg,
+		| |1111|10|00| |000|00000| |000|00000| |000|00000| |
+		  |op--|sr|dt| |reg|short------------------|ecomm|
+		  
+	move reg - > reg,
+		| |1111|00|00| |000|000|0| |
+		  |op--|sr|dt| |reg|reg|e|
+	
+	move byte - > lbp offset,
+		| |1111|01|11| |0000 0000| |0000 0000| |
+		  |op--|sr|dt| |byte-----| |offset---|
+	
+	move short - > lbp offset,
+		| |1111|10|11| |0000 0000| |0000 0000| |0000 0000| |
+		  |op--|sr|dt| |short----------------| |offset---|
+	
+	move reg - > lbp offset,
+		| |1111|00|11| |000|00000| |000|00000| |
+		  |op--|sr|dt| |reg|offset-----|ecomm|
+	
+	move offset - > reg
+		| |1111|11|00| |0000 0000| |000|00000| |
+		  |op--|sr|dt| |offset---| |reg|ecomm|
+pop:
+1101
+	byte stack -> reg,
+		move SP 1 byte ^
+		| |1101|000|0| |0000 0000| |
+		  |op--|reg|b| |byte-----|
+		
+	short stack -> reg
+		move SP 2 bytes ^
+		| |1101|000|1| |0000 0000| |0000 0000| |
+		  |op--|reg|s| |short----------------|
+		
+push:
+1100
+	byte reg -> stack,
+		move lsp 1 byte V
+	short reg -> stack,
+		move lsp 2 bytes V
+JMP:
+	next short -> instruction-pointer
+1011
+JmpIf:
+1010
+	carry true:
+		next short -> instruction-pointer
+	a > b:
+		next short -> ""
+	a = b:
+		"	"	""
+	a = 0:
+		"	"	""
+ALUOPS:
+add:
+1001
+	intType:
+		add byte - > reg,
+		add short -> reg,
+	add reg -> reg
+shr:
+1000
+	int:
+		shift right reg by byte,
+	shift right reg by reg
+shl:
+111
+	same as shr but left
+not:
+110
+	signed not byte,
+	signed not short,
+	signed not reg,
+	unsigned not byte,
+	unsigned not short
+	unsigned not reg
+and:
+101
+	int:
+		and short and reg,
+		and byte and reg,
+	and reg and reg
+or:
+100
+	int:
+		or short and reg,
+		or byte and reg,
+	or reg and reg
+xor:
+11
+	int:
+		xor short and reg,
+		xor byte and reg,
+	xor reg and reg
+subt:
+10
+	int:
+		subtract short from reg,
+		subtract byte from reg,
+	subtract reg from reg
+mult:
+1
+	int:
+		multiply byte and reg,
+		multiply short and reg,
+	multiply reg and reg
+CMP
+0
+	int:
+		compare short to reg,
+		compare byte to reg,
+	compare reg to reg
